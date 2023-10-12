@@ -1,0 +1,91 @@
+name: Build Dynamo
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build_dynamo_all_net_6_0_win:
+    name: Build Dynamo.All.sln - NET6.0
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "6.0.x"
+      - name: Disable problem matcher
+        run: echo "::remove-matcher owner=csc::"
+      - name: Install dependencies for windows runtime
+        run: |
+          dotnet restore $env:GITHUB_WORKSPACE\Dynamo\src\Dynamo.All.sln /p:Configuration=Release --runtime=win10-x64
+      - name: Build Dynamo with MSBuild for Windows
+        run: |
+          echo "***Continue with the build, Good luck developer!***"
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" $env:GITHUB_WORKSPACE\Dynamo\src\Dynamo.All.sln /p:Configuration=Release
+      - name: Look for Dynamo
+        run: |
+          echo "***Locating DynamoCLI for Windows!***"
+          Test-Path "$env:GITHUB_WORKSPACE\Dynamo\bin\AnyCPU\Release\DynamoCLI.exe" && echo "DynamoCLI exists!"
+
+  build_dynamo_core_net_6_0_win:
+    name: Build DynamoCore.sln - NET6.0 - Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - name: Disable problem matcher
+        run: echo "::remove-matcher owner=csc::"
+      - name: Install dependencies for windows runtime
+        run: |
+          dotnet restore $env:GITHUB_WORKSPACE\Dynamo\src\DynamoCore.sln /p:Configuration=Release --runtime=win10-x64
+      - name: Build Dynamo with MSBuild for Windows
+        run: |
+          echo "***Continue with the build, Good luck developer!***"
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" $env:GITHUB_WORKSPACE\Dynamo\src\DynamoCore.sln /p:Configuration=Release
+      - name: Look for Dynamo
+        run: |
+          echo "***Locating DynamoCLI for Windows!***"
+          Test-Path "$env:GITHUB_WORKSPACE\Dynamo\bin\AnyCPU\Release\DynamoCLI.exe" && echo "DynamoCLI exists!"
+      - name: Install dependencies for linux runtime
+        run: dotnet restore $env:GITHUB_WORKSPACE\Dynamo\src\DynamoCore.sln -p:Platform=NET60_Linux --runtime=linux-x64
+      - name: Build Dynamo with MSBuild for Linux
+        run: |
+          echo "***Continue with the build, Good luck developer!***"
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" $env:GITHUB_WORKSPACE\Dynamo\src\DynamoCore.sln /p:Configuration=Release /p:Platform=NET60_Linux
+      - name: Look for Dynamo
+        run: |
+          echo "***Locating DynamoCLI for Linux!***"
+          test "${{ github.workspace }}/Dynamo/bin/NET60_Linux/Release./DynamoCLI.exe" && echo "DynamoCLI exists!"
+
+  build_dynamo_core_net_6_0_linux:
+    name: Build DynamoCore.sln - NET6.0 - Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Dynamo Repo
+        uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+      - name: Disable problem matcher
+        run: echo "::remove-matcher owner=csc::"
+      - name: Install dependencies for linux runtime
+        run: dotnet restore ${{ github.workspace }}/Dynamo/src/DynamoCore.sln -p:Platform=NET60_Linux --runtime=linux-x64
+      - name: Build Dynamo with MSBuild for Linux
+        run: |
+          echo "***Continue with the build, Good luck developer!***"
+          dotnet build ${{ github.workspace }}/Dynamo/src/DynamoCore.sln -c Release /p:Platform=NET60_Linux
+      - name: Look for Dynamo
+        run: |
+          echo "***Locating DynamoCLI for Linux!***"
+          test "${{ github.workspace }}/Dynamo/bin/NET60_Linux/Release./DynamoCLI.exe" && echo "DynamoCLI exists!"
+      - name: Run smoke tests
+        run: |
+          echo "***Running Smoke tests on linux***"
+          # cd "${{ github.workspace }}/Dynamo/bin/NET60_Linux/Release"
+          # TODO unfortunately dotnet does not find any tests in this assembly.
+          # dotnet test DynamoCoreTests.dll --filter "TestCategory~UnitTest"
