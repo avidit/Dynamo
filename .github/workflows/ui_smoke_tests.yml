@@ -54,7 +54,7 @@ jobs:
       - name: Set Check Name
         id: set_check_name
         run: |
-          "check_name=$("UI Smoke Test", $($RUN_NAME -Split " ")[-1] -Join " - ")" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "check_name=$("UI Smoke Tests", $($env:RUN_NAME -Split " ")[-1] -Join " - ")" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
       - name: UI Smoke Tests Report
         id: test_report
         uses: dorny/test-reporter@v1.7.0
@@ -80,6 +80,6 @@ jobs:
           "Actor: @$env:ACTOR" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           "Workflow Run: [$env:RUN_NAME]($env:RUN_URL)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           if ($env:PR_NUMBER) {
-            "Pull Request: [$env:PR_NUMBER]($env:PR_URL/$env:PR_NUMBER)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "Pull Request: [#$env:PR_NUMBER]($env:PR_URL/$env:PR_NUMBER)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
           "Check: [${{ steps.set_check_name.outputs.check_name }}](${{ steps.test_report.outputs.url_html }})" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
