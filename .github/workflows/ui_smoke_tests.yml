@@ -51,11 +51,16 @@ jobs:
       - name: Run UI Smoke Tests
         shell: cmd
         run: .github\scripts\run_tests.bat ${{ secrets.TEST_EXECUTE_ACCESS_KEY }} Dynamo\Dynamo.pjs DynamoSandbox SmokeTests
+      - name: Set Check Name
+        id: set_check_name
+        run: |
+          "check_name=$("UI Smoke Test", $($RUN_NAME -Split " ")[-1] -Join " - ")" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
       - name: UI Smoke Tests Report
+        id: test_report
         uses: dorny/test-reporter@v1.7.0
         if: always()
         with:
-          name: UI Smoke Test Report
+          name: ${{ steps.set_check_name.outputs.check_name }}
           path: reports/report.xml
           reporter: java-junit
       - name: Read Pull Request Number
@@ -68,7 +73,13 @@ jobs:
           PR_URL: ${{ format('{0}/{1}/pull', github.server_url, github.repository) }}
         if: always()
         run: |
-          Get-Content summary.md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          if (Test-Path -Path summary.md) {
+            Get-Content -Path summary.md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+          "## Run Summary" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           "Actor: @$env:ACTOR" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           "Workflow Run: [$env:RUN_NAME]($env:RUN_URL)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-          "Pull Request: [$env:PR_NUMBER]($env:PR_URL/$env:PR_NUMBER)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          if ($env:PR_NUMBER) {
+            "Pull Request: [$env:PR_NUMBER]($env:PR_URL/$env:PR_NUMBER)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+          "Check: [${{ steps.set_check_name.outputs.check_name }}](${{ steps.test_report.outputs.url_html }})" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
