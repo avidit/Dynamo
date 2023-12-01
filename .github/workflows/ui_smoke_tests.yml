@@ -66,7 +66,7 @@ jobs:
       - name: Read Pull Request Number
         id: read_pr_number
         run: |
-          "pr_number=$(Get-Content ${{ github.workspace }}\pr\pr_number.txt)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "pr_number=$(Get-Content -Path ${{ github.workspace }}\pr\pr_number.txt)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
       - name: Summary
         env:
           PR_NUMBER: ${{ steps.read_pr_number.outputs.pr_number }}
@@ -83,3 +83,16 @@ jobs:
             "Pull Request: [#$env:PR_NUMBER]($env:PR_URL/$env:PR_NUMBER)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
           "Check: [${{ steps.set_check_name.outputs.check_name }}](${{ steps.test_report.outputs.url_html }})" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+      - name: Add Pull Request Comment
+        if: always()
+        run: |
+          if ($env:PR_NUMBER) {
+            $pr_comment=@"
+            ## UI Smoke Tests
+            Test: ${{ steps.test_report.outputs.conclusion }}. ${{ steps.test_report.outputs.passed }} passed, ${{ steps.test_report.outputs.failed }} failed.
+            [TestComplete Test Result]($(Get-Content -Path ${{ github.workspace }}\reports\result.txt))
+            Workflow Run: [${{ github.event.workflow.name }}](${{ github.event.workflow.html_url}})
+            Check: [${{ steps.set_check_name.outputs.check_name }}](${{ steps.test_report.outputs.url_html }})
+            "@
+            gh pr comment $env:PR_NUMBER --body $pr_comment --repo DynamoDS/Dynamo
+          }
