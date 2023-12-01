@@ -85,6 +85,8 @@ jobs:
           "Check: [${{ steps.set_check_name.outputs.check_name }}](${{ steps.test_report.outputs.url_html }})" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
       - name: Add Pull Request Comment
         if: always()
+        env:
+          GH_TOKEN: ${{ secrets.DYNAMO_TESTS_TOKEN }}
         run: |
           if ($env:PR_NUMBER) {
             $pr_comment=@"
