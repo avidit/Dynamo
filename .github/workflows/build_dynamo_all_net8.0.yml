@@ -37,13 +37,11 @@ jobs:
         cd "$Env:GITHUB_WORKSPACE\Dynamo\bin\AnyCPU\Release"
         echo "***Locating DynamoCLI for Windows!***"
         test ".\DynamoCLI.exe" && echo "DynamoCLI exists!"
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v3
+    - name: Save Build Cache
+      uses: actions/cache/save@v3
       with:
-        name: DynamoSandbox
         path: ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release
-        if-no-files-found: warn
-        retention-days: 3
+        key: DynamoSandbox-${{ github.event.number }}
     - name: Save Pull Request Number
       env:
         PR_NUMBER: ${{ github.event.number }}
