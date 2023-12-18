@@ -37,6 +37,24 @@ jobs:
         cd "$Env:GITHUB_WORKSPACE\Dynamo\bin\AnyCPU\Release"
         echo "***Locating DynamoCLI for Windows!***"
         test ".\DynamoCLI.exe" && echo "DynamoCLI exists!"
+    - name: Delete old master build cache
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh cache delete DynamoSandbox-master -R ${{ github.repository }} || true
+    - name: Cache Master Build
+      if: ${{ github.event_name == 'push' }} && ${{ github.ref == 'refs/heads/master' }}
+      uses: actions/cache/save@v3
+      with:
+        path: |
+          ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release
+          ${{ github.workspace }}\net60_Win_Dynamo\.github\scripts
+        key: DynamoSandbox-master
+    - name: Cache Current Build
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/cache/save@v3
+      with:
+        path: ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release
+        key: DynamoSandbox-pr-${{ github.event.number }}-${{ github.run_id }}-${{ github.run_attempt }}
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -47,9 +65,11 @@ jobs:
     - name: Save Pull Request Artifact
       env:
         PR_NUMBER: ${{ github.event.number }}
+        CACHE_KEY: DynamoSandbox-pr-${{ github.event.number }}-${{ github.run_id }}-${{ github.run_attempt }}
       run: |
         New-Item -Path ${{ github.workspace }}\pr -ItemType Directory -Force
-        $env:PR_NUMBER | Out-File -FilePath pr\pr_number.txt
+        $env:PR_NUMBER | Out-File -FilePath ${{ github.workspace }}\pr\pr_number.txt
+        $env:CACHE_KEY | Out-File -FilePath ${{ github.workspace }}\pr\cache_key.txt
     - name: Upload Pull Request Artifact
       uses: actions/upload-artifact@v4
       with:
