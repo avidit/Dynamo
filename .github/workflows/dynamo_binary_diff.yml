@@ -1,0 +1,139 @@
+# Build Dynamo using latest VS and DotNET and perform a Binary Diff
+name: Dynamo Binary Diff
+
+on: pull_request
+
+jobs:
+  build_current_net80:
+    name: Build Current Branch net80
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Dynamo Repo
+        uses: actions/checkout@v4
+        with:
+          path: current_net80
+          repository: DynamoDS/Dynamo
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Disable problem matcher
+        run: echo "::remove-matcher owner=csc::"
+      - name: Install dependencies for windows runtime
+        run: |
+          dotnet restore $Env:GITHUB_WORKSPACE\current_net80\src\Dynamo.All.sln /p:Configuration=Release --runtime=win-x64
+      - name: Build Dynamo current branch with MSBuild for net80
+        run: |
+          echo "***Continue with the build, Good luck developer!***"
+          cd "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\"
+          .\MSBuild.exe $Env:GITHUB_WORKSPACE\current_net80\src\Dynamo.All.sln /p:Configuration=Release
+      - name: Navigate to Dynamo Folder
+        run: |
+          cd "$Env:GITHUB_WORKSPACE\current_net80\bin\AnyCPU\Release"
+          echo "***Locating DynamoCLI for Windows!***"
+          test ".\DynamoSandbox.exe" && echo "DynamoSandbox exists!"
+      - name: Cache Current NET6 Windows Build
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ github.workspace }}\current_net80\bin\AnyCPU\Release
+            ${{ github.workspace }}\current_net80\.github\scripts
+          key: ${{ github.run_id }}-${{ github.run_attempt }}-cache-current-net80
+  build_master_net80:
+    name: Build Master Branch net80
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Dynamo Repo
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: master_net80
+          repository: DynamoDS/Dynamo
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Disable problem matcher
+        run: echo "::remove-matcher owner=csc::"
+      - name: Install dependencies for windows runtime
+        run: |
+          dotnet restore $Env:GITHUB_WORKSPACE\master_net80\src\Dynamo.All.sln /p:Configuration=Release --runtime=win-x64
+      - name: Build Dynamo master branch with MSBuild for net80
+        run: |
+          echo "***Continue with the build, Good luck developer!***"
+          cd "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\"
+          .\MSBuild.exe $Env:GITHUB_WORKSPACE\master_net80\src\Dynamo.All.sln /p:Configuration=Release
+      - name: Navigate to Dynamo Folder
+        run: |
+          cd "$Env:GITHUB_WORKSPACE\master_net80\bin\AnyCPU\Release"
+          echo "***Locating DynamoCLI for Windows!***"
+          test ".\DynamoCLI.exe" && echo "DynamoCLI exists!"
+      - name: Cache Master Build
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ github.workspace }}\master_net80\bin\AnyCPU\Release
+          key: ${{ github.run_id }}-${{ github.run_attempt }}-cache-master-net80
+  bin-diff:
+    name: Binary Diff
+    needs: [build_current_net80, build_master_net80]
+    runs-on: windows-latest
+    steps:
+      - name: Restore Current net80 Build
+        uses: actions/cache/restore@v3
+        with:
+          fail-on-cache-miss: true
+          path: |
+            ${{ github.workspace }}\current_net80\bin\AnyCPU\Release
+            ${{ github.workspace }}\current_net80\.github\scripts
+          key: ${{ github.run_id }}-${{ github.run_attempt }}-cache-current-net80
+      - name: Restore Master net80 Build
+        uses: actions/cache/restore@v3
+        with:
+          fail-on-cache-miss: true
+          path: ${{ github.workspace }}\master_net80\bin\AnyCPU\Release
+          key: ${{ github.run_id }}-${{ github.run_attempt }}-cache-master-net80
+      - name: Run Binary Diff
+        id: bin_diff
+        run: |
+          echo "***Running the binary diff job between the current branch and the master branch!***"
+          cd "$Env:GITHUB_WORKSPACE\current_net80\.github\scripts"
+          .\bin_diff.ps1 $Env:GITHUB_WORKSPACE\master_net80\bin\AnyCPU\Release,$Env:GITHUB_WORKSPACE\current_net80\bin\AnyCPU\Release -src ${{ github.job }}
+          "result=$(Get-Content -Path ./result.txt)"| Out-File -Path $Env:GITHUB_OUTPUT -Append
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find_comment
+        with:
+          issue-number: ${{ github.event.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Files Added/Deleted
+          direction: last
+      - name: Create comment
+        if: steps.find_comment.outputs.comment-id == '' && steps.bin_diff.outputs.result != ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.number }}
+          body: ${{ steps.bin_diff.outputs.result }}
+      - name: Update comment
+        if: steps.find_comment.outputs.comment-id != '' && steps.bin_diff.outputs.result != ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            ${{ steps.bin_diff.outputs.result }}
+            (Updated: $(Get-Date -format yyyy-MM-dd-HH:mm:ss))
+      - name: Update comment as resolved
+        if: steps.find_comment.outputs.comment-id != '' && steps.bin_diff.outputs.result == ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            ":white_check_mark: **Bin-Diff Issue Resolved.**"
+            (Updated: $(Get-Date -format yyyy-MM-dd-HH:mm:ss))
+      - name: Delete Build Cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh cache delete ${{ github.run_id }}-${{ github.run_attempt }}-cache-master-net80 -R ${{ github.repository }} || true
+          gh cache delete ${{ github.run_id }}-${{ github.run_attempt }}-cache-current-net80 -R ${{ github.repository }} || true
