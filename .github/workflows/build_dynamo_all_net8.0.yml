@@ -10,6 +10,7 @@ on:
 
 jobs:
   build_current:
+    name: Build Current
     runs-on: windows-latest
     steps:
       - name: Checkout Dynamo Repo
@@ -55,6 +56,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
   build_master:
+    name: Build Master
     runs-on: windows-latest
     steps:
       - name: Checkout Dynamo Repo
@@ -92,6 +94,7 @@ jobs:
           path: ${{ github.workspace }}\master\bin\AnyCPU\Release
           key: ${{ github.run_id }}-${{ github.run_attempt }}-master
   bin_diff:
+    name: Binary Diff
     needs: [build_current, build_master]
     runs-on: windows-latest
     steps:
@@ -115,13 +118,13 @@ jobs:
           Write-Output "***Running the binary diff job between the current branch and the master branch!***"
           cd "${{ github.workspace }}\Dynamo\.github\scripts"
           .\bin_diff.ps1 ${{ github.workspace }}\master\bin\AnyCPU\Release, ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release -src ${{ github.job }}
-          Get-Content ${{ github.workspace }}\Dynamo\.github\scripts\result.txt | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
       - name: Upload result
         uses: actions/upload-artifact@v4
         with:
           name: bin_diff_result
           path: ${{ github.workspace }}\Dynamo\.github\scripts\result.txt
   save_pr_data:
+    name: Save PR Data
     runs-on: ubuntu-latest
     steps:
       - name: Save PR Data
