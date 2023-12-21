@@ -6,9 +6,10 @@ on:
     branches:
       - master
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  build_current:
     runs-on: windows-latest
     steps:
       - name: Checkout Dynamo Repo
@@ -27,7 +28,7 @@ jobs:
       - name: Install dependencies for windows runtime
         run: |
           dotnet restore ${{ github.workspace }}\Dynamo\src\Dynamo.All.sln /p:Configuration=Release --runtime=win-x64 -p:DotNet=net8.0
-      - name: Build Dynamo with MSBuild for Windows
+      - name: Build Dynamo with MSBuild
         run: |
           Write-Output "***Continue with the build, Good luck developer!***"
           msbuild ${{ github.workspace }}\Dynamo\src\Dynamo.All.sln /p:Configuration=Release /p:DotNet=net8.0
@@ -39,6 +40,11 @@ jobs:
           } else {
             Write-Error "DynamoCLI.exe was not found!"
           }
+      - name: Cache Current Build
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release
+          key: ${{ github.event.number }}-${{ github.run_id }}-${{ github.run_attempt }}-current
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -46,16 +52,82 @@ jobs:
           path: ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release
           if-no-files-found: warn
           retention-days: 3
-      - name: Save Pull Request Artifact
-        env:
-          PR_NUMBER: ${{ github.event.number }}
+  build_master:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Dynamo Repo
+        uses: actions/checkout@v4
+        with:
+          path: Dynamo
+          ref: master
+          repository: DynamoDS/Dynamo
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Disable problem matcher
+        run: Write-Output "::remove-matcher owner=csc::"
+      - name: Install dependencies for windows runtime
         run: |
-          New-Item -Path ${{ github.workspace }}\pr -ItemType Directory -Force
-          $env:PR_NUMBER | Out-File -FilePath ${{ github.workspace }}\pr\pr_number.txt
-      - name: Upload Pull Request Artifact
+          dotnet restore ${{ github.workspace }}\Dynamo\src\Dynamo.All.sln /p:Configuration=Release --runtime=win-x64 -p:DotNet=net8.0
+      - name: Build Dynamo with MSBuild
+        run: |
+          Write-Output "***Continue with the build, Good luck developer!***"
+          msbuild ${{ github.workspace }}\Dynamo\src\Dynamo.All.sln /p:Configuration=Release /p:DotNet=net8.0
+      - name: Look for DynamoCLI.exe
+        run: |
+          Write-Output "***Locating DynamoCLI.exe!***"
+          if (Test-Path -Path "${{ github.workspace }}\Dynamo\bin\AnyCPU\Release\DynamoCLI.exe") {
+            Write-Output "DynamoCLI.exe exists!"
+          } else {
+            Write-Error "DynamoCLI.exe was not found!"
+          }
+      - name: Cache Master Build
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release
+          key: ${{ github.event.number }}-${{ github.run_id }}-${{ github.run_attempt }}-master
+  bin_diff:
+    needs: [build_current, build_master]
+    runs-on: windows-latest
+    steps:
+      - name: Restore Current Build
+        uses: actions/cache/restore@v3
+        with:
+          fail-on-cache-miss: true
+          path: |
+            ${{ github.workspace }}\current\bin\AnyCPU\Release
+            ${{ github.workspace }}\current\.github\scripts
+          key: ${{ github.event.number }}-${{ github.run_id }}-${{ github.run_attempt }}-current
+      - name: Restore Master Build
+        uses: actions/cache/restore@v3
+        with:
+          fail-on-cache-miss: true
+          path: ${{ github.workspace }}\master\bin\AnyCPU\Release
+          key: ${{ github.event.number }}-${{ github.run_id }}-${{ github.run_attempt }}-master
+      - name: Run Binary Diff Job
+        id: diff
+        run: |
+          Write-Output "***Running the binary diff job between the current branch and the master branch!***"
+          cd "${{ github.workspace }}\current\.github\scripts"
+          .\bin_diff.ps1 ${{ github.workspace }}\master\bin\AnyCPU\Release, ${{ github.workspace }}\current\bin\AnyCPU\Release -src ${{ github.job }}
+          Get-Content ${{ github.workspace }}\current\.github\scripts\result.txt | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: bin_diff_result
+          path: ${{ github.workspace }}\current\.github\scripts\result.txt
+  save_pr_data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save PR Data
+        run: |
+          mkdir -p ${{ github.workspace }}/pr
+          Write-Output ${{ github.event.number }} > ${{ github.workspace }}/pr/pr_number.txt
+      - name: Upload PR Data
         uses: actions/upload-artifact@v4
         with:
           name: pr_data
-          path: ${{ github.workspace }}\pr
+          path: ${{ github.workspace }}/pr
           if-no-files-found: warn
           retention-days: 3
