@@ -111,7 +111,7 @@ jobs:
         id: diff
         run: |
           Write-Output "***Running the binary diff job between the current branch and the master branch!***"
-          cd "${{ github.workspace }}\current\.github\scripts"
+          cd "${{ github.workspace }}\Dynamo\.github\scripts"
           .\bin_diff.ps1 ${{ github.workspace }}\master\bin\AnyCPU\Release, ${{ github.workspace }}\Dynamo\bin\AnyCPU\Release -src ${{ github.job }}
           Get-Content ${{ github.workspace }}\Dynamo\.github\scripts\result.txt | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
       - name: Upload result
