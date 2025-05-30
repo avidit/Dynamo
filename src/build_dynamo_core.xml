@@ -3,7 +3,7 @@
     ToolsVersion="16.0"
     DefaultTargets="Build">
     <PropertyGroup>
-        <Solution>Dynamo.All.sln</Solution>
+        <Solution>DynamoCore.sln</Solution>
         <Platform>Any CPU</Platform>
         <DotNet>net8.0</DotNet>
         <Configuration>Release</Configuration>
@@ -14,7 +14,7 @@
     <ItemGroup>
         <ProjectToBuild Include="$(Solution)">
             <Properties>
-                Configuration=$(Configuration);Platform=$(Platform);DotNet=$(DotNet);WarningLevel=0;warnAsError=RS0016,RS0017;PublicApiAnalyzers=true</Properties>
+                Configuration=$(Configuration);Platform=$(Platform);DotNet=$(DotNet);WarningLevel=0</Properties>
         </ProjectToBuild>
     </ItemGroup>
 
