@@ -96,5 +96,6 @@ jobs:
           test "./DynamoCLI.exe" && echo "DynamoCLI exists!"
       - name: Run smoke tests
         run: |
+          dotnet --info
           cd "${{ github.workspace }}/Dynamo/bin/NET_Linux/Release"
           dotnet test DynamoCoreTests.dll --filter "TestCategory=UnitTests&TestCategory!=GeometryTests"

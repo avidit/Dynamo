@@ -1,36 +1,79 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <IsFirstRun>true</IsFirstRun>
-  <IsUsageReportingApproved>false</IsUsageReportingApproved>
-  <IsAnalyticsReportingApproved>false</IsAnalyticsReportingApproved>
+  <IsTimeStampIncludedInExportFilePath>true</IsTimeStampIncludedInExportFilePath>
   <LibraryWidth>304</LibraryWidth>
+  <Locale>Default</Locale>
+  <GraphicScaleUnit>Millimeters</GraphicScaleUnit>
   <ConsoleHeight>0</ConsoleHeight>
   <ShowPreviewBubbles>true</ShowPreviewBubbles>
+  <ShowDefaultGroupDescription>true</ShowDefaultGroupDescription>
+  <OptionalInPortsCollapsed>true</OptionalInPortsCollapsed>
+  <UnconnectedOutPortsCollapsed>true</UnconnectedOutPortsCollapsed>
+  <CollapseToMinSize>true</CollapseToMinSize>
+  <UseHostScaleUnits>true</UseHostScaleUnits>
+  <ShowCodeBlockLineNumber>true</ShowCodeBlockLineNumber>
   <ShowConnector>true</ShowConnector>
+  <ShowConnectorToolTip>true</ShowConnectorToolTip>
+  <LibraryZoomScale>100</LibraryZoomScale>
+  <PythonScriptZoomScale>100</PythonScriptZoomScale>
   <ConnectorType>BEZIER</ConnectorType>
   <BackgroundPreviews />
   <IsBackgroundGridVisible>true</IsBackgroundGridVisible>
+  <GridScaleFactor>1</GridScaleFactor>
+  <DefaultScaleFactor>0</DefaultScaleFactor>
+  <RenderPrecision>128</RenderPrecision>
   <ShowEdges>false</ShowEdges>
+  <UseRenderInstancing>true</UseRenderInstancing>
   <ShowDetailedLayout>true</ShowDetailedLayout>
   <WindowX>0</WindowX>
   <WindowY>0</WindowY>
   <WindowW>1024</WindowW>
   <WindowH>768</WindowH>
   <UseHardwareAcceleration>true</UseHardwareAcceleration>
+  <HomePageSettings />
   <NumberFormat>f3</NumberFormat>
   <MaxNumRecentFiles>10</MaxNumRecentFiles>
   <RecentFiles />
+  <BackupLocation>C:\Users\kca\AppData\Roaming\Dynamo\Dynamo Core\backup</BackupLocation>
+  <TemplateFilePath>C:\Users\kca\workspace\dynamo\Dynamo\bin\NET_Linux\templates\en-US</TemplateFilePath>
   <BackupFiles />
   <CustomPackageFolders>
-    <string>C:\Users\radug\AppData\Roaming\Dynamo\Dynamo Core\2.0</string>
+    <string>%BuiltInPackages%</string>
+    <string>C:\Users\kca\AppData\Roaming\Dynamo\Dynamo Core\4.0</string>
   </CustomPackageFolders>
+  <DisableTrustWarnings>false</DisableTrustWarnings>
+  <TrustedLocations />
   <PackageDirectoriesToUninstall />
-  <PythonTemplateFilePath>C:\Users\radug\Documents\GitHub\Dynamo\test\settings\PythonTemplate-changed.py</PythonTemplateFilePath>
-  <BackupInterval>60000</BackupInterval>
+  <PythonTemplateFilePath>C:\Users\kca\workspace\dynamo\Dynamo\test\settings\PythonTemplate-changed.py</PythonTemplateFilePath>
+  <BackupInterval>300000</BackupInterval>
   <BackupFilesCount>1</BackupFilesCount>
   <PackageDownloadTouAccepted>false</PackageDownloadTouAccepted>
   <OpenFileInManualExecutionMode>false</OpenFileInManualExecutionMode>
-  <NamespacesToExcludeFromLibrary>
-    <string>ProtoGeometry.dll:Autodesk.DesignScript.Geometry.TSpline</string>
-  </NamespacesToExcludeFromLibrary>
+  <ShowTabsAndSpacesInScriptEditor>false</ShowTabsAndSpacesInScriptEditor>
+  <EnableNodeAutoComplete>true</EnableNodeAutoComplete>
+  <EnableNewNodeAutoCompleteUI>true</EnableNewNodeAutoCompleteUI>
+  <DefaultEnableLegacyPolyCurveBehavior>true</DefaultEnableLegacyPolyCurveBehavior>
+  <HideNodesBelowSpecificConfidenceLevel>false</HideNodesBelowSpecificConfidenceLevel>
+  <MLRecommendationConfidenceLevel>10</MLRecommendationConfidenceLevel>
+  <MLRecommendationNumberOfResults>10</MLRecommendationNumberOfResults>
+  <HideAutocompleteMethodOptions>false</HideAutocompleteMethodOptions>
+  <EnableNotificationCenter>true</EnableNotificationCenter>
+  <EnablePersistExtensions>false</EnablePersistExtensions>
+  <EnableStaticSplashScreen>true</EnableStaticSplashScreen>
+  <IsMLAutocompleteTOUApproved>true</IsMLAutocompleteTOUApproved>
+  <DefaultPythonEngine />
+  <SelectedPackagePathForInstall>C:\Users\kca\AppData\Roaming\Dynamo\Dynamo Core\4.0</SelectedPackagePathForInstall>
+  <ViewExtensionSettings />
+  <DisableBuiltinPackages>false</DisableBuiltinPackages>
+  <DisableCustomPackageLocations>false</DisableCustomPackageLocations>
+  <DefaultRunType>Automatic</DefaultRunType>
+  <DefaultNodeAutocompleteSuggestion>MLRecommendation</DefaultNodeAutocompleteSuggestion>
+  <ShowRunPreview>false</ShowRunPreview>
+  <GroupStyleItemsList />
+  <NodeSearchTagSizeLimit>300</NodeSearchTagSizeLimit>
+  <IronPythonResolveTargetVersion>3.2.0</IronPythonResolveTargetVersion>
+  <ReadNotificationIds />
+  <EnableDynamoPlayerRenamedWatchAsOutput>false</EnableDynamoPlayerRenamedWatchAsOutput>
+  <DynamoPlayerFolderGroups />
 </PreferenceSettings>
