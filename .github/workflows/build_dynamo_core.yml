@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies for linux runtime
         run: dotnet restore ${{ github.workspace }}\Dynamo\src\DynamoCore.sln --runtime=linux-x64 -p:Configuration=Release -p:Platform=NET_Linux -p:DotNet=net10.0
       - name: Build DynamoCore with dotnet CLI for Linux
-        run: dotnet build ${{ github.workspace }}\Dynamo\src\DynamoCore.sln --configuration Release --no-restore --verbosity normal
+        run: dotnet build ${{ github.workspace }}\Dynamo\src\DynamoCore.sln -p:Platform=NET_Linux --configuration Release --no-restore --verbosity normal
       - name: Look for DynamoCLI
         run: |
           Write-Output "***Locating DynamoCLI for Linux!***"
@@ -106,16 +106,14 @@ jobs:
       - name: Install dependencies for linux runtime
         run: dotnet restore ${{ github.workspace }}/Dynamo/src/DynamoCore.sln --runtime=linux-x64 -p:Configuration=Release -p:Platform=NET_Linux -p:DotNet=net10.0
       - name: Build DynamoCore with dotnet for Linux
-        run: dotnet build ${{ github.workspace }}/Dynamo/src/DynamoCore.sln -c Release /p:Platform=NET_Linux
+        run: dotnet build ${{ github.workspace }}/Dynamo/src/DynamoCore.sln -p:Platform=NET_Linux -c Release
       - name: Look for DynamoCLI.exe
         run: |
           echo "***Locating DynamoCLI for Linux!***"
           cd "${{ github.workspace }}/Dynamo/bin/NET_Linux/Release"
           test "./DynamoCLI.exe" && echo "DynamoCLI exists!"
       - name: Run smoke tests
-        run: |
-          cd "${{ github.workspace }}/Dynamo/bin/NET_Linux/Release"
-          dotnet test DynamoCoreTests.dll --filter "TestCategory=UnitTests&TestCategory!=GeometryTests"
+        run: dotnet test ${{ github.workspace }}\Dynamo\src\DynamoCore.sln --filter "TestCategory=UnitTests&TestCategory!=GeometryTests" --verbosity normal --logger trx --results-directory TestResults
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         if: always()
