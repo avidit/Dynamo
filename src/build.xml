@@ -19,8 +19,7 @@
     </ItemGroup>
 
     <Target Name="Build" DependsOnTargets="RestorePackages">
-        <MSBuild Projects="@(ProjectToBuild)" Targets="Rebuild"
-            Properties="Configuration=$(Configuration)" />
+        <Exec Command="dotnet build $(Solution) --configuration $(Configuration) --no-restore --verbosity normal" />
     </Target>
 
     <Target Name="RestorePackages">
