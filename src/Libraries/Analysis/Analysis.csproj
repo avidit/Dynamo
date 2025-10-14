@@ -60,9 +60,10 @@
   <Target Name="CopyFiles" BeforeTargets="Build">
     <Copy SourceFiles="$(ProjectDir)Analysis_DynamoCustomization.xml" DestinationFiles="$(OutDir)Analysis_DynamoCustomization.xml" />
   </Target>
-  <Target Name="GenerateFiles" AfterTargets="ResolveSateliteResDeps" Condition=" $(RuntimeIdentifier.Contains('win')) ">
-    <!-- Generate customization dll -->
-    <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)AnalysisImages.resx" OutputResources="$(ProjectDir)AnalysisImages.resources" />
-    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)AnalysisImages.resources" OutputAssembly="$(OutDir)Analysis.customization.dll" Version="%(AssemblyInfo.Version)" />
-  </Target>
+  <!-- Use generic AL task targets -->
+  <PropertyGroup>
+    <CustomizationDllName>Analysis.customization.dll</CustomizationDllName>
+    <CustomizationResxFile>AnalysisImages.resx</CustomizationResxFile>
+    <CustomizationResourcesFile>AnalysisImages.resources</CustomizationResourcesFile>
+  </PropertyGroup>
 </Project>

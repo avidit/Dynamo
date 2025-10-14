@@ -134,9 +134,10 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
   </ItemGroup>
-  <Target Name="GenerateFiles" AfterTargets="ResolveSateliteResDeps" Condition=" '$(OS)' != 'Unix' ">
-    <!-- Generate customization dll -->
-    <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)CoreNodeModelsWpfImages.resx" OutputResources="$(ProjectDir)CoreNodeModelsWpfImages.resources" />
-    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)CoreNodeModelsWpfImages.resources" OutputAssembly="$(OutDir)CoreNodeModelsWpf.customization.dll" Version="%(AssemblyInfo.Version)" />
-  </Target>
+  <!-- Use generic AL task targets -->
+  <PropertyGroup>
+    <CustomizationDllName>CoreNodeModelsWpf.customization.dll</CustomizationDllName>
+    <CustomizationResxFile>CoreNodeModelsWpfImages.resx</CustomizationResxFile>
+    <CustomizationResourcesFile>CoreNodeModelsWpfImages.resources</CustomizationResourcesFile>
+  </PropertyGroup>
 </Project>

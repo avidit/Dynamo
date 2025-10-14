@@ -11,7 +11,7 @@ namespace Dynamo.UI.Controls
     /// </summary>
     public partial class OutPortContextMenu : UserControl
     {
-        internal event Action<ShowHideFlags, PortViewModel> RequestShowPortContextMenu;
+        public event Action<ShowHideFlags, PortViewModel> RequestShowPortContextMenu;
 
         /// <summary>
         /// Constructor

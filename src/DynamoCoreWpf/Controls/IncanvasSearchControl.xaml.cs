@@ -22,7 +22,7 @@ namespace Dynamo.UI.Controls
     {
         ListBoxItem HighlightedItem;
 
-        internal event Action<ShowHideFlags> RequestShowInCanvasSearch;
+        public event Action<ShowHideFlags> RequestShowInCanvasSearch;
 
         public SearchViewModel ViewModel
         {

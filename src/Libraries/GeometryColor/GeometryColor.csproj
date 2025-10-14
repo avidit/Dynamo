@@ -67,9 +67,10 @@
       <LastGenOutput>Resources.en-US.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <Target Name="GenerateFiles" AfterTargets="ResolveSateliteResDeps" Condition=" $(RuntimeIdentifier.Contains('win')) ">
-    <!-- Generate customization dll -->
-    <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)GeometryColorImages.resx" OutputResources="$(ProjectDir)GeometryColorImages.resources" />
-    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)GeometryColorImages.resources" OutputAssembly="$(OutDir)GeometryColor.customization.dll" Version="%(AssemblyInfo.Version)" />
-  </Target>
+  <!-- Use generic AL task targets -->
+  <PropertyGroup>
+    <CustomizationDllName>GeometryColor.customization.dll</CustomizationDllName>
+    <CustomizationResxFile>GeometryColorImages.resx</CustomizationResxFile>
+    <CustomizationResourcesFile>GeometryColorImages.resources</CustomizationResourcesFile>
+  </PropertyGroup>
 </Project>

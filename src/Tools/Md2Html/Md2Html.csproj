@@ -10,7 +10,7 @@
         <AssemblyName>Md2Html</AssemblyName>
         <SharedOutputPath>$(OutputPath)\Md2Html\</SharedOutputPath>
         <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-        <PublishSingleFile>true</PublishSingleFile>
+        <PublishSingleFile>false</PublishSingleFile>
         <SelfContained>false</SelfContained>
     </PropertyGroup>
     <ItemGroup>

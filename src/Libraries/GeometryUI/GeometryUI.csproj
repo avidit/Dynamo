@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)Config\CS_SDK.props" />
   </ImportGroup>
@@ -70,9 +70,10 @@
       <LastGenOutput>Resources.en-US.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <Target Name="GegenerateFiles" AfterTargets="ResolveSateliteResDeps" Condition=" $(RuntimeIdentifier.Contains('win')) ">
-    <!-- Generate customization dll -->
-    <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)GeometryUIImages.resx" OutputResources="$(ProjectDir)GeometryUIImages.resources" />
-    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)GeometryUIImages.resources" OutputAssembly="$(OutDir)GeometryUI.customization.dll" Version="%(AssemblyInfo.Version)" />
-  </Target>
+  <!-- Use generic AL task targets -->
+  <PropertyGroup>
+    <CustomizationDllName>GeometryUI.customization.dll</CustomizationDllName>
+    <CustomizationResxFile>GeometryUIImages.resx</CustomizationResxFile>
+    <CustomizationResourcesFile>GeometryUIImages.resources</CustomizationResourcesFile>
+  </PropertyGroup>
 </Project>

@@ -14,7 +14,7 @@ namespace Dynamo.LintingViewExtension.Controls
     {
         #region DependencyProperties
 
-        internal IEnumerable<NodeModel> IssueNodes
+        public IEnumerable<NodeModel> IssueNodes
         {
             get { return (IEnumerable<NodeModel>)GetValue(IssueNodesProperty); }
             set { SetValue(IssueNodesProperty, value); }

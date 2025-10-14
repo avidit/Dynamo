@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)Config\CS_SDK.props" />
   </ImportGroup>
@@ -56,9 +56,10 @@
   <Target Name="CopyFiles" BeforeTargets="Build">
     <Copy SourceFiles="$(ProjectDir)Tessellation_DynamoCustomization.xml" DestinationFolder="$(OutputPath)" />
   </Target>
-  <Target Name="GenerateFiles" AfterTargets="ResolveSateliteResDeps" Condition=" $(RuntimeIdentifier.Contains('win')) ">
-    <!-- Generate customization dll -->
-    <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)TessellationImages.resx" OutputResources="$(ProjectDir)TessellationImages.resources" />
-    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)TessellationImages.resources" OutputAssembly="$(OutDir)Tessellation.customization.dll" Version="%(AssemblyInfo.Version)" />
-  </Target>
+  <!-- Use generic AL task targets -->
+  <PropertyGroup>
+    <CustomizationDllName>Tessellation.customization.dll</CustomizationDllName>
+    <CustomizationResxFile>TessellationImages.resx</CustomizationResxFile>
+    <CustomizationResourcesFile>TessellationImages.resources</CustomizationResourcesFile>
+  </PropertyGroup>
 </Project>

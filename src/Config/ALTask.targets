@@ -1,0 +1,82 @@
+<Project>
+  <!-- Generic AL Task implementation for .NET Core compatibility -->
+
+  <PropertyGroup>
+    <ALTaskEnabled Condition="'$(ALTaskEnabled)' == ''">true</ALTaskEnabled>
+    <ALToolPath Condition="'$(ALToolPath)' == ''">C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\al.exe</ALToolPath>
+    <CustomizationOutputPath Condition="'$(CustomizationOutputPath)' == ''">$(OutDir)</CustomizationOutputPath>
+  </PropertyGroup>
+
+  <!-- Generic target to generate customization DLLs -->
+  <Target Name="GenerateCustomizationDll"
+          AfterTargets="ResolveSateliteResDeps"
+          Condition="$(ALTaskEnabled) AND $(RuntimeIdentifier.Contains('win')) AND '$(CustomizationDllName)' != ''">
+
+    <!-- Generate resource file if resx exists -->
+    <GenerateResource
+      SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)"
+      UseSourcePath="true"
+      Sources="$(ProjectDir)$(CustomizationResxFile)"
+      OutputResources="$(ProjectDir)$(CustomizationResourcesFile)"
+      Condition="Exists('$(ProjectDir)$(CustomizationResxFile)')" />
+
+    <!-- Use AL task for .NET Framework MSBuild -->
+    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)"
+        TargetType="library"
+        EmbedResources="$(ProjectDir)$(CustomizationResourcesFile)"
+        OutputAssembly="$(CustomizationOutputPath)$(CustomizationDllName)"
+        Version="%(AssemblyInfo.Version)"
+        Condition="Exists('$(TargetFrameworkSDKToolsDirectory)al.exe') AND Exists('$(ProjectDir)$(CustomizationResourcesFile)')" />
+
+    <!-- Fallback for .NET Core: Use al.exe directly -->
+    <Exec Command="&quot;$(ALToolPath)&quot; /t:library /embed:&quot;$(ProjectDir)$(CustomizationResourcesFile)&quot; /out:&quot;$(CustomizationOutputPath)$(CustomizationDllName)&quot; /version:1.0.0.0"
+          Condition="!Exists('$(TargetFrameworkSDKToolsDirectory)al.exe') AND Exists('$(ProjectDir)$(CustomizationResourcesFile)')" />
+  </Target>
+
+  <!-- Target for multiple customization DLLs (like DynamoCore) -->
+  <Target Name="GenerateMultipleCustomizationDlls"
+          AfterTargets="ResolveSateliteResDeps"
+          Condition="$(ALTaskEnabled) AND $(RuntimeIdentifier.Contains('win')) AND '$(CustomizationDllNames)' != ''">
+
+    <!-- Process each customization DLL -->
+    <ItemGroup>
+      <CustomizationDll Include="$(CustomizationDllNames)" />
+    </ItemGroup>
+
+    <MSBuild Projects="$(MSBuildThisFileFullPath)"
+             Targets="GenerateSingleCustomizationDll"
+             Properties="CustomizationDllName=%(CustomizationDll.Identity);CustomizationResxFile=%(CustomizationDll.ResxFile);CustomizationResourcesFile=%(CustomizationDll.ResourcesFile)" />
+  </Target>
+
+  <!-- Helper target for single customization DLL -->
+  <Target Name="GenerateSingleCustomizationDll"
+          Condition="'$(CustomizationDllName)' != ''">
+
+    <!-- Generate resource file if resx exists -->
+    <GenerateResource
+      SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)"
+      UseSourcePath="true"
+      Sources="$(ProjectDir)$(CustomizationResxFile)"
+      OutputResources="$(ProjectDir)$(CustomizationResourcesFile)"
+      Condition="Exists('$(ProjectDir)$(CustomizationResxFile)')" />
+
+    <!-- Use AL task for .NET Framework MSBuild -->
+    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)"
+        TargetType="library"
+        EmbedResources="$(ProjectDir)$(CustomizationResourcesFile)"
+        OutputAssembly="$(CustomizationOutputPath)$(CustomizationDllName)"
+        Version="%(AssemblyInfo.Version)"
+        Condition="Exists('$(TargetFrameworkSDKToolsDirectory)al.exe') AND Exists('$(ProjectDir)$(CustomizationResourcesFile)')" />
+
+    <!-- Fallback for .NET Core: Use al.exe directly -->
+    <Exec Command="&quot;$(ALToolPath)&quot; /t:library /embed:&quot;$(ProjectDir)$(CustomizationResourcesFile)&quot; /out:&quot;$(CustomizationOutputPath)$(CustomizationDllName)&quot; /version:1.0.0.0"
+          Condition="!Exists('$(TargetFrameworkSDKToolsDirectory)al.exe') AND Exists('$(ProjectDir)$(CustomizationResourcesFile)')" />
+  </Target>
+
+  <!-- Legacy target name for backward compatibility -->
+  <Target Name="GenerateFiles"
+          AfterTargets="ResolveSateliteResDeps"
+          Condition="$(ALTaskEnabled) AND $(RuntimeIdentifier.Contains('win')) AND '$(CustomizationDllName)' != ''"
+          DependsOnTargets="GenerateCustomizationDll" />
+
+</Project>

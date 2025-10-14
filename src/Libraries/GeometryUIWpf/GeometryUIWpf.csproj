@@ -88,13 +88,11 @@
       <LastGenOutput>Resources.en-US.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <Target Name="GenerateFiles" AfterTargets="ResolveSateliteResDeps">
-    <!-- Get ProtoGeometry -->
-    <GetAssemblyIdentity AssemblyFiles="$(OutDir)..\ProtoGeometry.dll">
-      <Output TaskParameter="Assemblies" ItemName="ProtoGeometryInfo" />
-    </GetAssemblyIdentity>
-    <!-- Generate customization dll for ProtoGeometry -->
-    <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)ProtoGeometryImages.resx" OutputResources="$(ProjectDir)ProtoGeometryImages.resources" />
-    <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)ProtoGeometryImages.resources" OutputAssembly="$(OutDir)..\ProtoGeometry.customization.dll" Version="%(ProtoGeometryInfo.Version)" />
-  </Target>
+  <!-- Use generic AL task targets -->
+  <PropertyGroup>
+    <CustomizationDllName>ProtoGeometry.customization.dll</CustomizationDllName>
+    <CustomizationResxFile>ProtoGeometryImages.resx</CustomizationResxFile>
+    <CustomizationResourcesFile>ProtoGeometryImages.resources</CustomizationResourcesFile>
+    <CustomizationOutputPath>$(OutDir)..\</CustomizationOutputPath>
+  </PropertyGroup>
 </Project>

@@ -223,7 +223,7 @@
     <Copy SourceFiles="$(ProjectDir)\BuiltInAndOperators\Operators.xml" DestinationFolder="$(OutputPath)\$(UICulture)" />
     <Copy SourceFiles="$(ProjectDir)\BuiltInAndOperators\BuiltIn.xml" DestinationFolder="$(OutputPath)\$(UICulture)" />
     <Copy SourceFiles="$(ProjectDir)\BuiltInAndOperators\BuiltIn.Migrations.xml" DestinationFolder="$(OutputPath)" />
-    <Copy SourceFiles="$(SolutionDir)Config\upiconfig.xml" DestinationFolder="$(OutputPath)" /> 
+    <Copy SourceFiles="$(SolutionDir)Config\upiconfig.xml" DestinationFolder="$(OutputPath)" />
   </Target>
   <Target Name="AfterBuildOps" AfterTargets="ResolveSateliteResDeps">
     <ItemGroup>
@@ -233,19 +233,32 @@
     <Copy SourceFiles="@(ASMLibG)" DestinationFolder="$(OutputPath)\%(RecursiveDir)" />
     <Copy SourceFiles="@(ExternProtoGeometry)" DestinationFolder="$(OutputPath)" />
   </Target>
-  <Target AfterTargets="AfterBuildOps" Name="gen_resources" Condition=" $(RuntimeIdentifier.Contains('win')) ">
-        <!-- Generate customization dll for DynamoCore -->
-        <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)DynamoCoreImages.resx" OutputResources="$(ProjectDir)DynamoCoreImages.resources" />
-        <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)DynamoCoreImages.resources" OutputAssembly="$(OutDir)DynamoCore.customization.dll" Version="%(AssemblyInfo.Version)" />
-        <!-- Generate customization dll for Operators -->
-        <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)/BuiltInAndOperators/OperatorsImages.resx" OutputResources="$(ProjectDir)/BuiltInAndOperators/OperatorsImages.resources" />
-        <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)/BuiltInAndOperators/OperatorsImages.resources" OutputAssembly="$(OutDir)Operators.customization.dll" Version="%(AssemblyInfo.Version)" />
-        <!-- Generate customization dll for BuiltIn -->
-        <GenerateResource SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" UseSourcePath="true" Sources="$(ProjectDir)/BuiltInAndOperators/BuiltInImages.resx" OutputResources="$(ProjectDir)/BuiltInAndOperators/BuiltInImages.resources" />
-        <AL SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)" TargetType="library" EmbedResources="$(ProjectDir)/BuiltInAndOperators/BuiltInImages.resources" OutputAssembly="$(OutDir)BuiltIn.customization.dll" Version="%(AssemblyInfo.Version)" />
-    </Target>
+  <!-- Use generic AL task targets for multiple customization DLLs -->
+  <Target Name="GenerateDynamoCoreCustomizationDlls" AfterTargets="AfterBuildOps" Condition="$(RuntimeIdentifier.Contains('win'))">
+    <!-- Generate DynamoCore customization DLL -->
+    <MSBuild Projects="$(MSBuildThisFileFullPath)"
+             Targets="GenerateSingleCustomizationDll"
+             Properties="CustomizationDllName=DynamoCore.customization.dll;CustomizationResxFile=DynamoCoreImages.resx;CustomizationResourcesFile=DynamoCoreImages.resources" />
+
+    <!-- Generate Operators customization DLL -->
+    <MSBuild Projects="$(MSBuildThisFileFullPath)"
+             Targets="GenerateSingleCustomizationDll"
+             Properties="CustomizationDllName=Operators.customization.dll;CustomizationResxFile=BuiltInAndOperators/OperatorsImages.resx;CustomizationResourcesFile=BuiltInAndOperators/OperatorsImages.resources" />
+
+    <!-- Generate BuiltIn customization DLL -->
+    <MSBuild Projects="$(MSBuildThisFileFullPath)"
+             Targets="GenerateSingleCustomizationDll"
+             Properties="CustomizationDllName=BuiltIn.customization.dll;CustomizationResxFile=BuiltInAndOperators/BuiltInImages.resx;CustomizationResourcesFile=BuiltInAndOperators/BuiltInImages.resources" />
+  </Target>
     <PropertyGroup>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<AnalysisModeSecurity>All</AnalysisModeSecurity>
     </PropertyGroup>
+
+  <!-- Use generic AL task targets -->
+  <PropertyGroup>
+    <CustomizationDllName>DynamoCore.customization.dll</CustomizationDllName>
+    <CustomizationResxFile>DynamoCoreImages.resx</CustomizationResxFile>
+    <CustomizationResourcesFile>DynamoCoreImages.resources</CustomizationResourcesFile>
+  </PropertyGroup>
 </Project>

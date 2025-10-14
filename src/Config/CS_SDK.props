@@ -7,13 +7,13 @@
     <!--Use the property DotNet to set TargetFramework from commandline without forcing it on all projects-->
     <!--Ex. DynamoServices uses TargetFramework netstandard2.0 -->
     <DotNet>net10.0</DotNet>
-      <!--Use LibGVer to tell the CI/CD pipeline what the prefered LIBG version is for testing-->
+    <!--Use LibGVer to tell the CI/CD pipeline what the preferred LIBG version is for testing-->
     <LIBGVer>libg_232_0_0</LIBGVer>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">16.0</VisualStudioVersion>
     <TargetFramework>$(DotNet)</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath> 
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <OutputPath Condition=" '$(OutputPath)' == '' ">$(SolutionDir)..\bin\$(Platform)\$(Configuration)</OutputPath>
     <NunitPath Condition=" '$(NunitPath)' == '' ">$(SolutionDir)..\extern\NUnit</NunitPath>
     <SharpDXDirectXVersion>DirectX11</SharpDXDirectXVersion>
@@ -31,16 +31,20 @@
     <!--CS0612: The 'member' is obsolete-->
     <!--CS0672: Member 'member1' overrides obsolete member 'member2. Add the Obsolete attribute to 'member1'-->
     <NoWarn>MSB3539;CS1591;NUnit2005;NUnit2007;CS0618;CS0612;CS0672</NoWarn>
+    <!-- RS0016: PublicApiAnalyzers-->
+    <!-- RS0017: PublicApiAnalyzers-->
+    <PublicApiAnalyzers>true</PublicApiAnalyzers>
+    <WarningsAsErrors>RS0016,RS0017</WarningsAsErrors>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     <DebugSymbols>true</DebugSymbols>
     <SelfContained>false</SelfContained>
   </PropertyGroup>
     <!--generate windows pdbs on windows and portable pdbs for linux builds - CER currently does not support portable-->
     <PropertyGroup Condition="!$(Platform.Contains('Linux'))">
-        <DebugType>full</DebugType>
+      <DebugType>full</DebugType>
     </PropertyGroup>
     <PropertyGroup Condition="$(Platform.Contains('Linux'))" >
-        <DebugType>portable</DebugType>
+      <DebugType>portable</DebugType>
     </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
@@ -51,19 +55,21 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
     <PropertyGroup>
-    <!--Needed to copy nuget package assemblies to output folder. Anet6 issue-->
+    <!--Needed to copy nuget package assemblies to output folder. A net6 issue-->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDependencyFile>false</GenerateDependencyFile>
   </PropertyGroup>
-  <PropertyGroup Condition="$(Platform.Contains('AnyCPU'))" >
+  <!-- Set RuntimeIdentifier based on OS for AnyCPU builds -->
+  <PropertyGroup Condition="($(Platform.Contains('AnyCPU')) or '$(Platform)' == '' or '$(Platform)' == 'Any CPU') and $([MSBuild]::IsOSPlatform('Windows'))" >
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <DefineConstants>$(DefineConstants);_WINDOWS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="$(Platform.Contains('Linux'))" >
+  <!-- Set RuntimeIdentifier for Linux (both OS detection and explicit cross-compilation) -->
+  <PropertyGroup Condition="(($(Platform.Contains('AnyCPU')) or '$(Platform)' == '' or '$(Platform)' == 'Any CPU') and $([MSBuild]::IsOSPlatform('Linux'))) or $(Platform.Contains('Linux'))" >
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     <DefineConstants>$(DefineConstants);_LINUX</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(UILib)' == 'true' AND $(RuntimeIdentifier.Contains('win'))">
+  <PropertyGroup Condition="'$(UILib)' == 'true'">
     <TargetFramework>$(TargetFramework)-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -138,22 +144,22 @@
   </Target>
   <Target Name="ResolveSateliteResDeps" AfterTargets="Build" Condition=" '$(OS)' != 'Unix' ">
    <PropertyGroup>
-        <OutputExtension>dll</OutputExtension>
+      <OutputExtension>dll</OutputExtension>
     </PropertyGroup>
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="AssemblyInfo" />
     </GetAssemblyIdentity>
   </Target>
   <Choose>
-      <When Condition=" '$(OS)' != 'Unix' ">
-          <PropertyGroup>
-              <PowerShellCommand>powershell.exe</PowerShellCommand>
-          </PropertyGroup>
-      </When>
-      <Otherwise>
-          <PropertyGroup>
-              <PowerShellCommand>pwsh</PowerShellCommand>
-          </PropertyGroup>
-      </Otherwise>
+    <When Condition=" '$(OS)' != 'Unix' ">
+      <PropertyGroup>
+        <PowerShellCommand>powershell.exe</PowerShellCommand>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <PowerShellCommand>pwsh</PowerShellCommand>
+      </PropertyGroup>
+    </Otherwise>
   </Choose>
 </Project>

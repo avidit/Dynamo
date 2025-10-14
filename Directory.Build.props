@@ -9,4 +9,7 @@
       Note: The - -include-transitive should have a double dash without a space in between. -->
     <SolutionDir>$(MSBuildThisFileDirectory)src\</SolutionDir>
   </PropertyGroup>
+
+  <!-- Import generic AL task targets for all projects -->
+  <Import Project="$(MSBuildThisFileDirectory)src\Config\ALTask.targets" />
 </Project>
