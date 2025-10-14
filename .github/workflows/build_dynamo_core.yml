@@ -97,5 +97,4 @@ jobs:
       - name: Run smoke tests
         run: |
           cd "${{ github.workspace }}/Dynamo/bin/NET_Linux/Release"
-          # TODO unfortunately dotnet does not find any tests in this assembly.
-          # dotnet test DynamoCoreTests.dll --filter "TestCategory~UnitTest"
+          dotnet test DynamoCoreTests.dll --filter "TestCategory=UnitTests&TestCategory!=GeometryTests"
